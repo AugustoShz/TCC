@@ -1,0 +1,30 @@
+- country_vaccinations
+
+country
+date
+total_vaccinations
+people_vaccinated
+people_fully_vaccinated
+vaccines
+iso_code
+
+Not Wanted Fields
+'daily_vaccinations_raw', 'daily_vaccinations', 'total_vaccinations_per_hundred', 'people_vaccinated_per_hundred', 'people_fully_vaccinated_per_hundred', 'daily_vaccinations_per_million', 'source_name', 'source_website'
+
+
+
+
+- Bind-COVID19-Data
+
+Updated - Data do registro
+Confirmed - Total de casos
+ConfirmedChange - Quantidade de casos no registro
+Deaths - Total de morted
+DeathsChange - Quantidade de mortes no registro
+Recovered
+RecoveredChange
+Country_Region
+ISO3
+
+Not Wanted Fields
+'Latitude', 'Longitude', 'ISO2', 'AdminRegion1', 'AdminRegion2'
