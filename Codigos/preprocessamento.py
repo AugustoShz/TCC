@@ -6,7 +6,27 @@ df_dataset_original_data = pd.read_csv('..\Datasets\Bing-COVID19-Data.csv', sep=
 
 #remover atributos desnecessários
 df_dataset_removed_vacinacao = df_dataset_original_vacinacao.drop(['daily_vaccinations_raw', 'daily_vaccinations', 'total_vaccinations_per_hundred', 'people_vaccinated_per_hundred', 'people_fully_vaccinated_per_hundred', 'daily_vaccinations_per_million', 'source_name', 'source_website'], axis = 1)
-df_dataset_removed_data = df_dataset_original_data.drop(['ID','Latitude', 'Longitude', 'ISO2', 'AdminRegion1', 'AdminRegion2'], axis = 1)
+df_dataset_removed_data = df_dataset_original_data.drop(['ID','Latitude', 'Longitude', 'ISO2'], axis = 1)
+
+#Aplicar ISO3 no Worldwide
+df_worldwide = df_dataset_removed_data['Country_Region'] == 'Worldwide'
+
+df_dataset_removed_data.loc[df_worldwide, 'ISO3'] = 'WWW'
+
+#Remover todos que não possuem ISO3
+df_without_iso = df_dataset_removed_data['ISO3'].notnull()
+
+df_dataset_removed_data = df_dataset_removed_data.loc[df_without_iso]
+
+#Remover todos que possuem admin1 e admin2
+with_adminRegion1 = df_dataset_removed_data['AdminRegion1'].isnull()
+with_adminRegion2 = df_dataset_removed_data['AdminRegion1'].isnull()
+
+df_with_anyRegion = with_adminRegion1 | with_adminRegion2
+
+df_dataset_removed_data = df_dataset_removed_data.loc[df_with_anyRegion]
+
+df_dataset_removed_data = df_dataset_removed_data.drop(['AdminRegion1', 'AdminRegion2'], axis = 1)
 
 #Verificar quais colunas estão vazias e zerar
 
@@ -15,8 +35,11 @@ df_filled_vacinacao = df_dataset_removed_vacinacao.fillna(value=values)
 
 # colunas = df_filled_vacinacao.isna().sum()/df_filled_vacinacao.shape[0]
 
-values = {'ConfirmedChange': 0, 'Deaths': 0, "DeathsChange": 0, "Recovered": 0, "RecoveredChange": 0, "ISO3": "WWW"}
+values = {'ConfirmedChange': 0, 'Deaths': 0, "DeathsChange": 0, "Recovered": 0, "RecoveredChange": 0}
 df_filled_data = df_dataset_removed_data.fillna(value=values)
+
+
+
 
 # colunas = df_filled_data.isna().sum()/df_filled_data.shape[0]
 
