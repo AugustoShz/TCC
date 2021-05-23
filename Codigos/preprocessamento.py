@@ -28,6 +28,12 @@ df_dataset_removed_data = df_dataset_removed_data.loc[df_with_anyRegion]
 
 df_dataset_removed_data = df_dataset_removed_data.drop(['AdminRegion1', 'AdminRegion2'], axis = 1)
 
+#Remover dados zerados da vacinação
+withoutTotal = df_dataset_original_vacinacao['total_vaccinations'].notnull()
+df_dataset_removed_vacinacao = df_dataset_removed_vacinacao.loc[withoutTotal]
+
+
+
 #Verificar quais colunas estão vazias e zerar
 
 values = {'total_vaccinations': 0, 'people_vaccinated': 0, 'people_fully_vaccinated': 0}
@@ -37,7 +43,6 @@ df_filled_vacinacao = df_dataset_removed_vacinacao.fillna(value=values)
 
 values = {'ConfirmedChange': 0, 'Deaths': 0, "DeathsChange": 0, "Recovered": 0, "RecoveredChange": 0}
 df_filled_data = df_dataset_removed_data.fillna(value=values)
-
 
 
 
