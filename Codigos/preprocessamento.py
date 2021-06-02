@@ -60,6 +60,26 @@ df_filled_vacinacao['date'] = df_filled_vacinacao['date'].apply(formatVaccinatio
 df_filled_data['Updated'] = df_filled_data['Updated'].apply(formatDataDate)
 
 
+df_filled_vacinacao['day'] = df_filled_vacinacao['date'].dt.day
+df_filled_vacinacao['month'] = df_filled_vacinacao['date'].dt.month
+df_filled_vacinacao['year'] = df_filled_vacinacao['date'].dt.year
+
+df_filled_data['day'] = df_filled_data['Updated'].dt.day
+df_filled_data['month'] = df_filled_data['Updated'].dt.month
+df_filled_data['year'] = df_filled_data['Updated'].dt.year
+
+#26<->29/03/2021 todos os países
+days = df_filled_data['Updated'] == '2021-03-25'
+df_days = df_filled_data.loc[days]
+
+
+for index, row in df_days:
+  print(row)
+  #for i in range(26,29):
+    #df_filled_data.add({'Updated':'2021-03-'+str(i),'Confirmed': row['Confirmed'],'ConfirmedChange': 0, 'Deaths': row['Deaths'], 'DeathsChange': 0, 'Recovered': row['Recovered'],'RecoveredChange': 0, 'Country_Region': row['Country_Region'], 'ISO3': row['ISO3']})
+
+df_filled_data.sort_values(by=['ISO3', 'Updated'], inplace=True)
+
 dir = '../DatasetsTratados'
 
 if not os.path.exists(dir):
