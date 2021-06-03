@@ -84,6 +84,19 @@ while(start_date + pd.DateOffset(months=month_offset) <= end_date):
   
   month_offset+=1
 
+plt.plot(df_dataset_processed_data['Update'], ks_stat_confirmed_recovered, color='red', label='Stat Confirmed')
+plt.plot(df_dataset_processed_data['Update'], ks_p_value_confirmed_recovered, color='blue', label='p value Confirmed')
+plt.plot(df_dataset_processed_data['Update'], ks_stat_deaths_recovered, color='green', label='Stat Deaths')
+plt.plot(df_dataset_processed_data['Update'], ks_p_value_confirmed_recovered, color='yellow', label='p value Deaths')
+
+plt.legend()
+plt.title("KS - Test - Recovered")
+plt.xlabel("Data de atualização")
+plt.ylabel("Quantidade")
+plt.xticks(range(0,301,30))
+plt.show()
+
+
 df_ksvalues_confirmed_recovered = pd.DataFrame(df_ksvalues_confirmed_recovered)
 df_ksvalues_deaths_recovered = pd.DataFrame(df_ksvalues_deaths_recovered)
 
