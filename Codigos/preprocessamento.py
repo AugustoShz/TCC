@@ -69,12 +69,12 @@ df_filled_data['month'] = df_filled_data['Updated'].dt.month
 df_filled_data['year'] = df_filled_data['Updated'].dt.year
 
 #26<->29/03/2021 todos os países
-days = df_filled_data['Updated'] == '2021-03-25'
-df_days = df_filled_data.loc[days]
+# days = df_filled_data['Updated'] == '2021-03-25'
+# df_days = df_filled_data.loc[days]
 
 
-for index, row in df_days:
-  print(row)
+# for index, row in df_days:
+#   print(row)
   #for i in range(26,29):
     #df_filled_data.add({'Updated':'2021-03-'+str(i),'Confirmed': row['Confirmed'],'ConfirmedChange': 0, 'Deaths': row['Deaths'], 'DeathsChange': 0, 'Recovered': row['Recovered'],'RecoveredChange': 0, 'Country_Region': row['Country_Region'], 'ISO3': row['ISO3']})
 

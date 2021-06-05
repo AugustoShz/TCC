@@ -26,18 +26,17 @@ yAfterVaccineRecovered=np.array(df_worldwide["Recovered"])
 xVacinacao = np.array(df_filtered['date'])
 yVacinacao = np.array(df_filtered['total_vaccinations'])
 
-# plt.plot(x, yConfirmed, color='red', label='Casos Confirmados')
-# plt.plot(x, yDeaths, color='black', label="Mortes")
-# plt.plot(x, yRecovered, color='green',label="Recuperados")
+plt.plot(x, yTotalConfirmed, color='red', label='Casos Confirmados')
+plt.plot(x, yTotalDeaths, color='black', label="Mortes")
+plt.plot(x, yTotalRecovered, color='green',label="Recuperados")
 
-# plt.plot(xVacinacao, yVacinacao, color = 'orange', label='Total de vacinações')
+plt.legend()
+plt.title("Casos Totais")
+plt.xlabel("Data de atualização")
+plt.ylabel("Quantidade")
+plt.xticks(range(0,500,30))
+plt.show()
 
-# plt.legend()
-# plt.title("Casos Totais")
-# plt.xlabel("Data de atualização")
-# plt.ylabel("Quantidade")
-# plt.xticks(range(0,301,30))
-# plt.show()
 def formatDate(date):
   formated = pd.to_datetime(date, format='%Y-%m-%d')
   return formated
@@ -50,19 +49,19 @@ end_date = pd.to_datetime(df_dataset_processed_data['Updated'].max()) + pd.offse
 
 month_offset = 0
 
-df_dataset_processed_data['Updated'] = df_dataset_processed_data['Updated'].apply(formatDate)
+df_worldwide['Updated'] = df_worldwide['Updated'].apply(formatDate)
 df_ksvalues_confirmed_recovered = []
 df_ksvalues_deaths_recovered = []
 
 while(start_date + pd.DateOffset(months=month_offset) <= end_date):
 
   x = start_date + pd.DateOffset(months=month_offset)
-  y = start_date + pd.DateOffset(months=(month_offset+1))
-  
-  start_range = df_dataset_processed_data['Updated'] >= x
-  end_range = df_dataset_processed_data['Updated'] < y
+  y = start_date + pd.DateOffset(months=(month_offset+3))
+
+  start_range = df_worldwide['Updated'] >= x
+  end_range = df_worldwide['Updated'] < y
   between_range = start_range & end_range
-  df_filtered_dates = df_dataset_processed_data.loc[between_range]
+  df_filtered_dates = df_worldwide.loc[between_range]
   
   yFilteredByDateConfirmed=np.array(df_filtered_dates["Confirmed"])
   yFilteredByDateDeaths=np.array(df_filtered_dates["Deaths"])
@@ -82,23 +81,30 @@ while(start_date + pd.DateOffset(months=month_offset) <= end_date):
     'p': ks_p_value_deaths_recovered
   })
   
-  month_offset+=1
+  month_offset+=3
 
-plt.plot(df_dataset_processed_data['Update'], ks_stat_confirmed_recovered, color='red', label='Stat Confirmed')
-plt.plot(df_dataset_processed_data['Update'], ks_p_value_confirmed_recovered, color='blue', label='p value Confirmed')
-plt.plot(df_dataset_processed_data['Update'], ks_stat_deaths_recovered, color='green', label='Stat Deaths')
-plt.plot(df_dataset_processed_data['Update'], ks_p_value_confirmed_recovered, color='yellow', label='p value Deaths')
+teste = {}
+for i in range(len(df_ksvalues_confirmed_recovered)):
+  teste[df_ksvalues_confirmed_recovered[i]['month']]= [df_ksvalues_confirmed_recovered[i]['stat'], df_ksvalues_deaths_recovered[i]['stat']]
+  
+plotdata = pd.DataFrame(teste, index = ['Confirmados', 'Mortes'])
+plotdata.plot(kind='bar')
+# df_ksvalues_confirmed_recovered = pd.DataFrame(df_ksvalues_confirmed_recovered)
+# df_ksvalues_deaths_recovered = pd.DataFrame(df_ksvalues_deaths_recovered)
+
+# plt.bar(df_ksvalues_confirmed_recovered['month'], df_ksvalues_confirmed_recovered['stat'], color='red', label='Stat Confirmed', width=50)
+# plt.plot(df_ksvalues_confirmed_recovered['month'], df_ksvalues_confirmed_recovered['p'], color='blue', label='p value Confirmed')
+# plt.bar(df_ksvalues_deaths_recovered['month'], df_ksvalues_deaths_recovered['stat'], color='green', label='Stat Deaths', width=50)
+# plt.plot(df_ksvalues_deaths_recovered['month'], df_ksvalues_deaths_recovered['p'], color='yellow', label='p value Deaths')
 
 plt.legend()
 plt.title("KS - Test - Recovered")
 plt.xlabel("Data de atualização")
 plt.ylabel("Quantidade")
-plt.xticks(range(0,301,30))
+# plt.xticks(df_ksvalues_confirmed_recovered['month'])
 plt.show()
 
 
-df_ksvalues_confirmed_recovered = pd.DataFrame(df_ksvalues_confirmed_recovered)
-df_ksvalues_deaths_recovered = pd.DataFrame(df_ksvalues_deaths_recovered)
 
 print(df_ksvalues_confirmed_recovered)
 print(df_ksvalues_deaths_recovered)
@@ -118,15 +124,15 @@ print(df_ksvalues_deaths_recovered)
 # print(ks_stat_deaths_recovered,ks_p_value_deaths_recovered) #0.7421686746987952 1.4238698481232616e-111
 
 
-# #- Calcular KS no período de vacinação (Vacinados x Recuperados);
-# ks_stat_vaccine_recovered, ks_p_value_vaccine_recovered = stats.ks_2samp(yAfterVaccineRecovered, yVacinacao)
-# print(ks_stat_vaccine_recovered, ks_p_value_vaccine_recovered) #0.35628227194492257 2.0063008809856342e-08
+#- Calcular KS no período de vacinação (Vacinados x Recuperados);
+ks_stat_vaccine_recovered, ks_p_value_vaccine_recovered = stats.ks_2samp(yAfterVaccineRecovered, yVacinacao)
+print(ks_stat_vaccine_recovered, ks_p_value_vaccine_recovered) #0.35628227194492257 2.0063008809856342e-08
 
-# #- Calcular KS no período de vacinação (Mortes x Recuperados);
-# ks_stat_deaths_recovered_adter_vaccine, ks_p_value_deaths_recovered_adter_vaccine = stats.ks_2samp(yAfterVaccineRecovered, yAfterVaccineDeaths)
-# print(ks_stat_deaths_recovered_adter_vaccine,ks_p_value_deaths_recovered_adter_vaccine) #0.7421686746987952 1.4238698481232616e-111
+#- Calcular KS no período de vacinação (Mortes x Recuperados);
+ks_stat_deaths_recovered_adter_vaccine, ks_p_value_deaths_recovered_adter_vaccine = stats.ks_2samp(yAfterVaccineRecovered, yAfterVaccineDeaths)
+print(ks_stat_deaths_recovered_adter_vaccine,ks_p_value_deaths_recovered_adter_vaccine) #0.7421686746987952 1.4238698481232616e-111
 
-# #- Calcular KS no período de vacinação (Vacinados x Mortes);
-# ks_stat_vaccine_deaths, ks_p_value_vaccine_deaths = stats.ks_2samp(yAfterVaccineDeaths, yVacinacao)
-# print(ks_stat_vaccine_deaths, ks_p_value_vaccine_deaths) #0.9166666666666666 5.742707163737219e-76
+#- Calcular KS no período de vacinação (Vacinados x Mortes);
+ks_stat_vaccine_deaths, ks_p_value_vaccine_deaths = stats.ks_2samp(yAfterVaccineDeaths, yVacinacao)
+print(ks_stat_vaccine_deaths, ks_p_value_vaccine_deaths) #0.9166666666666666 5.742707163737219e-76
 
