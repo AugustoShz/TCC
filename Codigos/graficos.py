@@ -9,32 +9,35 @@ df_dataset_processed_vacinacao = pd.read_csv('..\DatasetsTratados\processed_vaci
 df_dataset_filtered_by_vacinacao_date_data = pd.read_csv('..\DatasetsTratados/filtered_by_vaccination_dates_data.csv', sep=',', index_col=None)
 
 # df_worldwide = df_dataset_processed_data.loc[df_dataset_processed_data['ISO3'] == 'BRA']
-df_worldwide = df_dataset_processed_data.loc[df_dataset_processed_data['ISO3'] == 'BRA']
-df_worldwide_after_vaccine = df_dataset_filtered_by_vacinacao_date_data.loc[df_dataset_filtered_by_vacinacao_date_data['ISO3'] == 'BRA']
+df_worldwide = df_dataset_processed_data.loc[df_dataset_processed_data['ISO3'] == 'WWW']
+df_worldwide_after_vaccine = df_dataset_filtered_by_vacinacao_date_data.loc[df_dataset_filtered_by_vacinacao_date_data['ISO3'] == 'WWW']
 
-df_filtered = df_dataset_processed_vacinacao.loc[df_dataset_processed_vacinacao['iso_code'] == 'BRA']
+df_country = df_dataset_processed_data.loc[df_dataset_processed_data['ISO3'] == 'BRA']
+df_country_after_vaccine = df_dataset_filtered_by_vacinacao_date_data.loc[df_dataset_filtered_by_vacinacao_date_data['ISO3'] == 'BRA']
 
-x=np.array(df_worldwide["Updated"])
-yTotalConfirmed=np.array(df_worldwide["Confirmed"])
-yTotalDeaths=np.array(df_worldwide["Deaths"])
-yTotalRecovered=np.array(df_worldwide["Recovered"])
+df_filtered = df_dataset_processed_vacinacao.loc[df_dataset_processed_vacinacao['iso_code'] == 'WWW']
 
-yAfterVaccineConfirmed=np.array(df_worldwide["Confirmed"])
-yAfterVaccineDeaths=np.array(df_worldwide["Deaths"])
-yAfterVaccineRecovered=np.array(df_worldwide["Recovered"])
+x=np.array(df_country["Updated"])
+yTotalConfirmed=np.array(df_country["Confirmed"])
+yTotalDeaths=np.array(df_country["Deaths"])
+yTotalRecovered=np.array(df_country["Recovered"])
+
+yAfterVaccineConfirmed=np.array(df_country["Confirmed"])
+yAfterVaccineDeaths=np.array(df_country["Deaths"])
+yAfterVaccineRecovered=np.array(df_country["Recovered"])
 
 xVacinacao = np.array(df_filtered['date'])
 yVacinacao = np.array(df_filtered['total_vaccinations'])
 
-plt.plot(x, yTotalConfirmed, color='red', label='Casos Confirmados')
+plt.plot(x, yTotalConfirmed, color='red', label='Confirmados')
 plt.plot(x, yTotalDeaths, color='black', label="Mortes")
-plt.plot(x, yTotalRecovered, color='green',label="Recuperados")
+# plt.plot(x, yTotalRecovered, color='green',label="Recuperados")
 
 plt.legend()
-plt.title("Casos Totais")
+plt.title("Casos Totais (Mortes x Confirmados) - Brasil")
 plt.xlabel("Data de atualização")
 plt.ylabel("Quantidade")
-plt.xticks(range(0,500,30))
+plt.xticks(range(0,len(x),len(x)//10))
 plt.show()
 
 def formatDate(date):
@@ -47,62 +50,106 @@ end_date = pd.to_datetime(df_dataset_processed_data['Updated'].max()) + pd.offse
 #pd.DateOffset(months=13)
 
 
-month_offset = 0
+month_offset = 1
 
 df_worldwide['Updated'] = df_worldwide['Updated'].apply(formatDate)
+df_country['Updated'] = df_country['Updated'].apply(formatDate)
 df_ksvalues_confirmed_recovered = []
 df_ksvalues_deaths_recovered = []
+df_ksvalues_deaths_confirmed = []
 
 while(start_date + pd.DateOffset(months=month_offset) <= end_date):
-
   x = start_date + pd.DateOffset(months=month_offset)
-  y = start_date + pd.DateOffset(months=(month_offset+3))
+  y = start_date + pd.DateOffset(months=(month_offset+1))
 
   start_range = df_worldwide['Updated'] >= x
   end_range = df_worldwide['Updated'] < y
   between_range = start_range & end_range
-  df_filtered_dates = df_worldwide.loc[between_range]
+  df_filtered_dates_worldwide = df_worldwide.loc[between_range]
   
-  yFilteredByDateConfirmed=np.array(df_filtered_dates["Confirmed"])
-  yFilteredByDateDeaths=np.array(df_filtered_dates["Deaths"])
-  yFilteredByDateRecovered=np.array(df_filtered_dates["Recovered"])
+  start_range = df_country['Updated'] >= x
+  end_range = df_country['Updated'] < y
+  between_range = start_range & end_range
+  df_filtered_dates_country = df_country.loc[between_range]
+  
+  yFilteredByDateConfirmedWorldwide=np.array(df_filtered_dates_worldwide["Confirmed"])
+  yFilteredByDateDeathsWorldwide=np.array(df_filtered_dates_worldwide["Deaths"])
+  yFilteredByDateRecoveredWorldwide=np.array(df_filtered_dates_worldwide["Recovered"])
+  
+  yFilteredByDateConfirmedCountry=np.array(df_filtered_dates_country["Confirmed"])
+  yFilteredByDateDeathsCountry=np.array(df_filtered_dates_country["Deaths"])
+  yFilteredByDateRecoveredCountry=np.array(df_filtered_dates_country["Recovered"])
 
-  ks_stat_confirmed_recovered, ks_p_value_confirmed_recovered = stats.ks_2samp(yFilteredByDateRecovered, yFilteredByDateConfirmed)
+
+  integralConfirmedWorldwide = np.trapz(yFilteredByDateConfirmedWorldwide, dx=5)
+  integralRecoveredWorldwide = np.trapz(yFilteredByDateRecoveredWorldwide, dx=5)
+  integralDeathsWorldwide = np.trapz(yFilteredByDateDeathsWorldwide, dx=5)
+
+  integralConfirmedCountry = np.trapz(yFilteredByDateConfirmedCountry, dx=5)
+  integralRecoveredCountry = np.trapz(yFilteredByDateRecoveredCountry, dx=5)
+  integralDeathsCountry = np.trapz(yFilteredByDateDeathsCountry, dx=5)
+
+  ks_stat_confirmed_recovered, ks_p_value_confirmed_recovered = stats.ks_2samp(yFilteredByDateRecoveredWorldwide, yFilteredByDateConfirmedWorldwide)
   df_ksvalues_confirmed_recovered.append({
-    'month': x, 
+    'month': x,
     'stat': ks_stat_confirmed_recovered, 
-    'p': ks_p_value_confirmed_recovered
+    'p': ks_p_value_confirmed_recovered,
+    'maxDiff':  max(yFilteredByDateConfirmedWorldwide - yFilteredByDateRecoveredWorldwide),
+    'integral': integralConfirmedWorldwide - integralRecoveredWorldwide,
+    'integralPercentage': min(integralRecoveredWorldwide / integralConfirmedWorldwide, 1),
+    'countryAndWorldDiff': (integralConfirmedWorldwide - integralRecoveredWorldwide) - (integralConfirmedCountry - integralRecoveredCountry)
   })
 
-  ks_stat_deaths_recovered, ks_p_value_deaths_recovered = stats.ks_2samp(yFilteredByDateRecovered, yFilteredByDateDeaths)
+  ks_stat_deaths_recovered, ks_p_value_deaths_recovered = stats.ks_2samp(yFilteredByDateRecoveredWorldwide, yFilteredByDateDeathsWorldwide)
   df_ksvalues_deaths_recovered.append({
     'month': x, 
     'stat': ks_stat_deaths_recovered, 
-    'p': ks_p_value_deaths_recovered
+    'p': ks_p_value_deaths_recovered,
+    'maxDiff':  max(yFilteredByDateRecoveredWorldwide - yFilteredByDateDeathsWorldwide),
+    'integral': integralRecoveredWorldwide - integralDeathsWorldwide,
+    'integralPercentage':  min(integralDeathsWorldwide / integralRecoveredWorldwide, 1),
+    'countryAndWorldDiff': (integralRecoveredWorldwide - integralDeathsWorldwide) - (integralRecoveredCountry - integralDeathsCountry)
+  })
+
+  ks_stat_deaths_confirmed, ks_p_value_deaths_confirmed = stats.ks_2samp(yFilteredByDateConfirmedWorldwide, yFilteredByDateDeathsWorldwide)
+  df_ksvalues_deaths_confirmed.append({
+    'month': x, 
+    'stat': ks_stat_deaths_confirmed, 
+    'p': ks_p_value_deaths_confirmed,
+    'maxDiff':  max(yFilteredByDateConfirmedWorldwide - yFilteredByDateDeathsWorldwide),
+    'integral': integralConfirmedWorldwide - integralDeathsWorldwide,
+    'integralPercentage':  min(integralDeathsWorldwide / integralConfirmedWorldwide, 1),
+    'countryAndWorldDiff': (integralConfirmedWorldwide - integralDeathsWorldwide) - (integralConfirmedCountry - integralDeathsCountry)
   })
   
-  month_offset+=3
+  month_offset+=1
 
 teste = {}
-for i in range(len(df_ksvalues_confirmed_recovered)):
-  teste[df_ksvalues_confirmed_recovered[i]['month']]= [df_ksvalues_confirmed_recovered[i]['stat'], df_ksvalues_deaths_recovered[i]['stat']]
+# for i in range(len(df_ksvalues_confirmed_recovered)):
+  # teste[df_ksvalues_confirmed_recovered[i]['month']]= [df_ksvalues_confirmed_recovered[i]['maxDiff'], df_ksvalues_deaths_recovered[i]['maxDiff'], df_ksvalues_deaths_confirmed[i]['maxDiff']]
+  # teste[df_ksvalues_confirmed_recovered[i]['month']]= [df_ksvalues_confirmed_recovered[i]['stat'], df_ksvalues_deaths_recovered[i]['stat'], df_ksvalues_deaths_confirmed[i]['stat']]
+  # teste[df_ksvalues_confirmed_recovered[i]['month']]= [df_ksvalues_confirmed_recovered[i]['integral'], df_ksvalues_deaths_recovered[i]['integral'], df_ksvalues_deaths_confirmed[i]['integral']]
+  # teste[df_ksvalues_confirmed_recovered[i]['month']]= [df_ksvalues_confirmed_recovered[i]['integralPercentage'], df_ksvalues_deaths_recovered[i]['integralPercentage'], df_ksvalues_deaths_confirmed[i]['integralPercentage']]
+  # teste[df_ksvalues_confirmed_recovered[i]['month']]= [df_ksvalues_confirmed_recovered[i]['countryAndWorldDiff'], df_ksvalues_deaths_recovered[i]['countryAndWorldDiff'], df_ksvalues_deaths_confirmed[i]['countryAndWorldDiff']]
   
-plotdata = pd.DataFrame(teste, index = ['Confirmados', 'Mortes'])
-plotdata.plot(kind='bar')
-# df_ksvalues_confirmed_recovered = pd.DataFrame(df_ksvalues_confirmed_recovered)
-# df_ksvalues_deaths_recovered = pd.DataFrame(df_ksvalues_deaths_recovered)
+# plotdata = pd.DataFrame(teste, index = ['Confirmados x Recuperados', 'Mortes x Recuperados', 'Confirmados x Mortes'])
+# plotdata.plot(kind='bar')
 
-# plt.bar(df_ksvalues_confirmed_recovered['month'], df_ksvalues_confirmed_recovered['stat'], color='red', label='Stat Confirmed', width=50)
-# plt.plot(df_ksvalues_confirmed_recovered['month'], df_ksvalues_confirmed_recovered['p'], color='blue', label='p value Confirmed')
-# plt.bar(df_ksvalues_deaths_recovered['month'], df_ksvalues_deaths_recovered['stat'], color='green', label='Stat Deaths', width=50)
-# plt.plot(df_ksvalues_deaths_recovered['month'], df_ksvalues_deaths_recovered['p'], color='yellow', label='p value Deaths')
+df_ksvalues_confirmed_recovered = pd.DataFrame(df_ksvalues_confirmed_recovered)
+df_ksvalues_deaths_recovered = pd.DataFrame(df_ksvalues_deaths_recovered)
+df_ksvalues_deaths_confirmed = pd.DataFrame(df_ksvalues_deaths_confirmed)
 
-plt.legend()
-plt.title("KS - Test - Recovered")
-plt.xlabel("Data de atualização")
-plt.ylabel("Quantidade")
-# plt.xticks(df_ksvalues_confirmed_recovered['month'])
-plt.show()
+
+# plt.plot(df_ksvalues_confirmed_recovered['month'], df_ksvalues_confirmed_recovered['stat'], color='blue', label='stat')
+# plt.plot(df_ksvalues_deaths_recovered['month'], df_ksvalues_deaths_recovered['stat'], color='blue', label='stat')
+# plt.plot(df_ksvalues_deaths_confirmed['month'], df_ksvalues_deaths_confirmed['stat'], color='blue', label='stat')
+
+# plt.legend()
+# plt.title("Teste de Kolmogorov Smirnov (Mortes x Confirmados) - Mundo")
+# plt.xlabel("Data de atualização")
+# plt.ylabel("Quantidade")
+# plt.xticks(rotation='horizontal')
+# plt.show()
 
 
 
