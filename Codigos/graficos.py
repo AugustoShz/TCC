@@ -12,8 +12,8 @@ df_dataset_filtered_by_vacinacao_date_data = pd.read_csv('..\DatasetsTratados/fi
 df_worldwide = df_dataset_processed_data.loc[df_dataset_processed_data['ISO3'] == 'WWW']
 df_worldwide_after_vaccine = df_dataset_filtered_by_vacinacao_date_data.loc[df_dataset_filtered_by_vacinacao_date_data['ISO3'] == 'WWW']
 
-df_country = df_dataset_processed_data.loc[df_dataset_processed_data['ISO3'] == 'BRA']
-df_country_after_vaccine = df_dataset_filtered_by_vacinacao_date_data.loc[df_dataset_filtered_by_vacinacao_date_data['ISO3'] == 'BRA']
+df_country = df_dataset_processed_data.loc[df_dataset_processed_data['ISO3'] == 'ARG']
+df_country_after_vaccine = df_dataset_filtered_by_vacinacao_date_data.loc[df_dataset_filtered_by_vacinacao_date_data['ISO3'] == 'ARG']
 
 df_filtered = df_dataset_processed_vacinacao.loc[df_dataset_processed_vacinacao['iso_code'] == 'WWW']
 
@@ -29,12 +29,12 @@ yAfterVaccineRecovered=np.array(df_country["Recovered"])
 xVacinacao = np.array(df_filtered['date'])
 yVacinacao = np.array(df_filtered['total_vaccinations'])
 
-plt.plot(x, yTotalConfirmed, color='red', label='Confirmados')
+# plt.plot(x, yTotalConfirmed, color='red', label='Confirmados')
 plt.plot(x, yTotalDeaths, color='black', label="Mortes")
 # plt.plot(x, yTotalRecovered, color='green',label="Recuperados")
 
 plt.legend()
-plt.title("Casos Totais (Mortes x Confirmados) - Brasil")
+plt.title("Gráfico de mortes - Argentina")
 plt.xlabel("Data de atualização")
 plt.ylabel("Quantidade")
 plt.xticks(range(0,len(x),len(x)//10))
@@ -111,6 +111,8 @@ while(start_date + pd.DateOffset(months=month_offset) <= end_date):
     'countryAndWorldDiff': (integralRecoveredWorldwide - integralDeathsWorldwide) - (integralRecoveredCountry - integralDeathsCountry)
   })
 
+  print(integralConfirmedWorldwide, integralDeathsWorldwide)
+
   ks_stat_deaths_confirmed, ks_p_value_deaths_confirmed = stats.ks_2samp(yFilteredByDateConfirmedWorldwide, yFilteredByDateDeathsWorldwide)
   df_ksvalues_deaths_confirmed.append({
     'month': x, 
@@ -125,15 +127,15 @@ while(start_date + pd.DateOffset(months=month_offset) <= end_date):
   month_offset+=1
 
 teste = {}
-# for i in range(len(df_ksvalues_confirmed_recovered)):
+for i in range(len(df_ksvalues_confirmed_recovered)):
   # teste[df_ksvalues_confirmed_recovered[i]['month']]= [df_ksvalues_confirmed_recovered[i]['maxDiff'], df_ksvalues_deaths_recovered[i]['maxDiff'], df_ksvalues_deaths_confirmed[i]['maxDiff']]
   # teste[df_ksvalues_confirmed_recovered[i]['month']]= [df_ksvalues_confirmed_recovered[i]['stat'], df_ksvalues_deaths_recovered[i]['stat'], df_ksvalues_deaths_confirmed[i]['stat']]
   # teste[df_ksvalues_confirmed_recovered[i]['month']]= [df_ksvalues_confirmed_recovered[i]['integral'], df_ksvalues_deaths_recovered[i]['integral'], df_ksvalues_deaths_confirmed[i]['integral']]
-  # teste[df_ksvalues_confirmed_recovered[i]['month']]= [df_ksvalues_confirmed_recovered[i]['integralPercentage'], df_ksvalues_deaths_recovered[i]['integralPercentage'], df_ksvalues_deaths_confirmed[i]['integralPercentage']]
+  teste[df_ksvalues_confirmed_recovered[i]['month']]= [df_ksvalues_confirmed_recovered[i]['integralPercentage'], df_ksvalues_deaths_recovered[i]['integralPercentage'], df_ksvalues_deaths_confirmed[i]['integralPercentage']]
   # teste[df_ksvalues_confirmed_recovered[i]['month']]= [df_ksvalues_confirmed_recovered[i]['countryAndWorldDiff'], df_ksvalues_deaths_recovered[i]['countryAndWorldDiff'], df_ksvalues_deaths_confirmed[i]['countryAndWorldDiff']]
   
-# plotdata = pd.DataFrame(teste, index = ['Confirmados x Recuperados', 'Mortes x Recuperados', 'Confirmados x Mortes'])
-# plotdata.plot(kind='bar')
+plotdata = pd.DataFrame(teste, index = ['Confirmados x Recuperados', 'Mortes x Recuperados', 'Confirmados x Mortes'])
+plotdata.plot(kind='bar')
 
 df_ksvalues_confirmed_recovered = pd.DataFrame(df_ksvalues_confirmed_recovered)
 df_ksvalues_deaths_recovered = pd.DataFrame(df_ksvalues_deaths_recovered)
@@ -144,17 +146,12 @@ df_ksvalues_deaths_confirmed = pd.DataFrame(df_ksvalues_deaths_confirmed)
 # plt.plot(df_ksvalues_deaths_recovered['month'], df_ksvalues_deaths_recovered['stat'], color='blue', label='stat')
 # plt.plot(df_ksvalues_deaths_confirmed['month'], df_ksvalues_deaths_confirmed['stat'], color='blue', label='stat')
 
-# plt.legend()
-# plt.title("Teste de Kolmogorov Smirnov (Mortes x Confirmados) - Mundo")
-# plt.xlabel("Data de atualização")
-# plt.ylabel("Quantidade")
-# plt.xticks(rotation='horizontal')
-# plt.show()
-
-
-
-print(df_ksvalues_confirmed_recovered)
-print(df_ksvalues_deaths_recovered)
+plt.legend()
+plt.title("Diferença de integrais em porcentagem - Mundial")
+plt.xlabel("Data de atualização")
+plt.ylabel("Quantidade")
+plt.xticks(rotation='horizontal')
+plt.show()
 
 # for x in range(start_date.year, end_date.year):
 #     for y in range(start_date.month, end_date.month):
@@ -171,15 +168,15 @@ print(df_ksvalues_deaths_recovered)
 # print(ks_stat_deaths_recovered,ks_p_value_deaths_recovered) #0.7421686746987952 1.4238698481232616e-111
 
 
-#- Calcular KS no período de vacinação (Vacinados x Recuperados);
-ks_stat_vaccine_recovered, ks_p_value_vaccine_recovered = stats.ks_2samp(yAfterVaccineRecovered, yVacinacao)
-print(ks_stat_vaccine_recovered, ks_p_value_vaccine_recovered) #0.35628227194492257 2.0063008809856342e-08
+# #- Calcular KS no período de vacinação (Vacinados x Recuperados);
+# ks_stat_vaccine_recovered, ks_p_value_vaccine_recovered = stats.ks_2samp(yAfterVaccineRecovered, yVacinacao)
+# print(ks_stat_vaccine_recovered, ks_p_value_vaccine_recovered) #0.35628227194492257 2.0063008809856342e-08
 
-#- Calcular KS no período de vacinação (Mortes x Recuperados);
-ks_stat_deaths_recovered_adter_vaccine, ks_p_value_deaths_recovered_adter_vaccine = stats.ks_2samp(yAfterVaccineRecovered, yAfterVaccineDeaths)
-print(ks_stat_deaths_recovered_adter_vaccine,ks_p_value_deaths_recovered_adter_vaccine) #0.7421686746987952 1.4238698481232616e-111
+# #- Calcular KS no período de vacinação (Mortes x Recuperados);
+# ks_stat_deaths_recovered_adter_vaccine, ks_p_value_deaths_recovered_adter_vaccine = stats.ks_2samp(yAfterVaccineRecovered, yAfterVaccineDeaths)
+# print(ks_stat_deaths_recovered_adter_vaccine,ks_p_value_deaths_recovered_adter_vaccine) #0.7421686746987952 1.4238698481232616e-111
 
-#- Calcular KS no período de vacinação (Vacinados x Mortes);
-ks_stat_vaccine_deaths, ks_p_value_vaccine_deaths = stats.ks_2samp(yAfterVaccineDeaths, yVacinacao)
-print(ks_stat_vaccine_deaths, ks_p_value_vaccine_deaths) #0.9166666666666666 5.742707163737219e-76
+# #- Calcular KS no período de vacinação (Vacinados x Mortes);
+# ks_stat_vaccine_deaths, ks_p_value_vaccine_deaths = stats.ks_2samp(yAfterVaccineDeaths, yVacinacao)
+# print(ks_stat_vaccine_deaths, ks_p_value_vaccine_deaths) #0.9166666666666666 5.742707163737219e-76
 
