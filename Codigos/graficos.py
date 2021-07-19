@@ -4,6 +4,8 @@ import pandas as pd
 import numpy as np
 import scipy.stats as stats
 
+plt.rcParams.update({'font.size': 18})
+
 df_dataset_processed_data = pd.read_csv('..\DatasetsTratados\processed_data.csv', sep=',', index_col=None)
 df_dataset_processed_vacinacao = pd.read_csv('..\DatasetsTratados\processed_vacinacao.csv', sep=',', index_col=None)
 df_dataset_filtered_by_vacinacao_date_data = pd.read_csv('..\DatasetsTratados/filtered_by_vaccination_dates_data.csv', sep=',', index_col=None)
@@ -12,33 +14,33 @@ df_dataset_filtered_by_vacinacao_date_data = pd.read_csv('..\DatasetsTratados/fi
 df_worldwide = df_dataset_processed_data.loc[df_dataset_processed_data['ISO3'] == 'WWW']
 df_worldwide_after_vaccine = df_dataset_filtered_by_vacinacao_date_data.loc[df_dataset_filtered_by_vacinacao_date_data['ISO3'] == 'WWW']
 
-df_country = df_dataset_processed_data.loc[df_dataset_processed_data['ISO3'] == 'ARG']
-df_country_after_vaccine = df_dataset_filtered_by_vacinacao_date_data.loc[df_dataset_filtered_by_vacinacao_date_data['ISO3'] == 'ARG']
+df_country = df_dataset_processed_data.loc[df_dataset_processed_data['ISO3'] == 'BRA']
+df_country_after_vaccine = df_dataset_filtered_by_vacinacao_date_data.loc[df_dataset_filtered_by_vacinacao_date_data['ISO3'] == 'BRA']
 
 df_filtered = df_dataset_processed_vacinacao.loc[df_dataset_processed_vacinacao['iso_code'] == 'WWW']
 
-x=np.array(df_country["Updated"])
-yTotalConfirmed=np.array(df_country["Confirmed"])
-yTotalDeaths=np.array(df_country["Deaths"])
-yTotalRecovered=np.array(df_country["Recovered"])
+x=np.array(df_worldwide["Updated"])
+yTotalConfirmed=np.array(df_worldwide["Confirmed"])
+yTotalDeaths=np.array(df_worldwide["Deaths"])
+yTotalRecovered=np.array(df_worldwide["Recovered"])
 
-yAfterVaccineConfirmed=np.array(df_country["Confirmed"])
-yAfterVaccineDeaths=np.array(df_country["Deaths"])
-yAfterVaccineRecovered=np.array(df_country["Recovered"])
+yAfterVaccineConfirmed=np.array(df_worldwide["Confirmed"])
+yAfterVaccineDeaths=np.array(df_worldwide["Deaths"])
+yAfterVaccineRecovered=np.array(df_worldwide["Recovered"])
 
 xVacinacao = np.array(df_filtered['date'])
 yVacinacao = np.array(df_filtered['total_vaccinations'])
 
 # plt.plot(x, yTotalConfirmed, color='red', label='Confirmados')
-plt.plot(x, yTotalDeaths, color='black', label="Mortes")
+# plt.plot(x, yTotalDeaths, color='black', label="Mortes")
 # plt.plot(x, yTotalRecovered, color='green',label="Recuperados")
 
-plt.legend()
-plt.title("Gráfico de mortes - Argentina")
-plt.xlabel("Data de atualização")
-plt.ylabel("Quantidade")
-plt.xticks(range(0,len(x),len(x)//10))
-plt.show()
+# plt.legend()
+# plt.title("Gráfico de mortes - Mudial")
+# plt.xlabel("Data de atualização")
+# plt.ylabel("Quantidade")
+# plt.xticks(range(0,len(x),len(x)//8))
+# plt.show()
 
 def formatDate(date):
   formated = pd.to_datetime(date, format='%Y-%m-%d')
@@ -95,8 +97,8 @@ while(start_date + pd.DateOffset(months=month_offset) <= end_date):
     'stat': ks_stat_confirmed_recovered, 
     'p': ks_p_value_confirmed_recovered,
     'maxDiff':  max(yFilteredByDateConfirmedWorldwide - yFilteredByDateRecoveredWorldwide),
-    'integral': integralConfirmedWorldwide - integralRecoveredWorldwide,
-    'integralPercentage': min(integralRecoveredWorldwide / integralConfirmedWorldwide, 1),
+    'integral': integralConfirmedCountry - integralRecoveredCountry,
+    'integralPercentage': min(integralRecoveredCountry / integralConfirmedCountry, 1),
     'countryAndWorldDiff': (integralConfirmedWorldwide - integralRecoveredWorldwide) - (integralConfirmedCountry - integralRecoveredCountry)
   })
 
@@ -106,8 +108,8 @@ while(start_date + pd.DateOffset(months=month_offset) <= end_date):
     'stat': ks_stat_deaths_recovered, 
     'p': ks_p_value_deaths_recovered,
     'maxDiff':  max(yFilteredByDateRecoveredWorldwide - yFilteredByDateDeathsWorldwide),
-    'integral': integralRecoveredWorldwide - integralDeathsWorldwide,
-    'integralPercentage':  min(integralDeathsWorldwide / integralRecoveredWorldwide, 1),
+    'integral': integralRecoveredCountry - integralDeathsCountry,
+    'integralPercentage':  min(integralDeathsCountry / integralRecoveredCountry, 1),
     'countryAndWorldDiff': (integralRecoveredWorldwide - integralDeathsWorldwide) - (integralRecoveredCountry - integralDeathsCountry)
   })
 
@@ -119,8 +121,8 @@ while(start_date + pd.DateOffset(months=month_offset) <= end_date):
     'stat': ks_stat_deaths_confirmed, 
     'p': ks_p_value_deaths_confirmed,
     'maxDiff':  max(yFilteredByDateConfirmedWorldwide - yFilteredByDateDeathsWorldwide),
-    'integral': integralConfirmedWorldwide - integralDeathsWorldwide,
-    'integralPercentage':  min(integralDeathsWorldwide / integralConfirmedWorldwide, 1),
+    'integral': integralConfirmedCountry - integralDeathsCountry,
+    'integralPercentage':  min(integralDeathsCountry / integralConfirmedCountry, 1),
     'countryAndWorldDiff': (integralConfirmedWorldwide - integralDeathsWorldwide) - (integralConfirmedCountry - integralDeathsCountry)
   })
   
@@ -147,7 +149,7 @@ df_ksvalues_deaths_confirmed = pd.DataFrame(df_ksvalues_deaths_confirmed)
 # plt.plot(df_ksvalues_deaths_confirmed['month'], df_ksvalues_deaths_confirmed['stat'], color='blue', label='stat')
 
 plt.legend()
-plt.title("Diferença de integrais em porcentagem - Mundial")
+plt.title("Diferença de integrais em porcentagem - Argentina")
 plt.xlabel("Data de atualização")
 plt.ylabel("Quantidade")
 plt.xticks(rotation='horizontal')
