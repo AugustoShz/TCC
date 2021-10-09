@@ -13,10 +13,27 @@ df.index = to_datetime(df.index)
 df_worldwide = df.loc[df['ISO3'] == 'WWW']
 series = df_worldwide['Confirmed']
 
-
 result = seasonal_decompose(np.array(series), model='multiplicative', period=4)
 
 rcParams['figure.figsize'] = 10, 5
 result.plot()
 plt.figure(figsize=(40,10))
 plt.show()
+
+def decompose(country, serie):
+    df_worldwide = df.loc[df['ISO3'] == country]
+    series = df_worldwide[serie]
+
+    result = seasonal_decompose(np.array(series), model='multiplicative', period=4)
+
+    rcParams['figure.figsize'] = 10, 5
+    result.plot()
+    plt.figure(figsize=(40,10))
+    plt.show()
+
+decompose('WWW', 'Confirmed')
+decompose('WWW', 'Updated')
+decompose('WWW', 'Deaths')
+decompose('BRA', 'Confirmed')
+decompose('BRA', 'Updated')
+decompose('BRA', 'Deaths')
