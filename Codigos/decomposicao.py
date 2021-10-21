@@ -30,3 +30,5 @@ worlwide_deaths = decompose('WWW', 'Deaths')
 country_confirmed = decompose('BRA', 'Confirmed')
 country_recovered = decompose('BRA', 'Recovered')
 country_deaths = decompose('BRA', 'Deaths')
+
+print(worlwide_confirmed.trend)
