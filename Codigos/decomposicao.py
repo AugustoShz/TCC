@@ -41,7 +41,7 @@ def baseFuncSinh(x, a, b, c):
 def baseFuncLog10(x, a, b, c):
   return a * np.log(b * x) + c
 
-def nonLinearRegression(data, func):
+def nonLinearRegression(data, func, title):
   for i in range(len(data)):
     if(np.isnan(data[i])):
       if(i == 0): 
@@ -59,22 +59,22 @@ def nonLinearRegression(data, func):
 
   print( pcov)
   print(popt)
-  plt.plot(xdata, data, 'b-', label='data')
+  plt.plot(xdata, data, 'b-', label='Tendência')
 
   plt.plot(xdata, func(xdata, *popt), 'r-',
-          label='fit: a=%5.3f, b=%5.3f, c=%5.3f' % tuple(popt))
+          label='Ajuste: a=%5.3f, b=%5.3f, c=%5.3f' % tuple(popt))
 
   plt.xlabel('x')
   plt.ylabel('y')
-  plt.title('a * sinh(bx) + c')
+  plt.title(title)
   plt.legend()
   plt.show()
 
 
-nonLinearRegression(worlwide_confirmed.trend, baseFuncSinh)
-nonLinearRegression(worlwide_recovered.trend, baseFuncSinh)
+nonLinearRegression(worlwide_confirmed.trend, baseFuncSinh, 'Função de ajuste: Seno Hiperbólico - Casos Confirmados - Mundial')
+nonLinearRegression(worlwide_recovered.trend, baseFuncSinh, 'Função de ajuste: Seno Hiperbólico - Recuperados - Mundial')
 
-nonLinearRegression(worlwide_deaths.trend, baseFuncTanh)
-nonLinearRegression(country_confirmed.trend, baseFuncTanh)
-nonLinearRegression(country_recovered.trend, baseFuncTanh)
-nonLinearRegression(country_deaths.trend, baseFuncTanh)
+nonLinearRegression(worlwide_deaths.trend, baseFuncTanh, 'Função de ajuste: Tangente Hiperbólica - Mortes - Mundial')
+nonLinearRegression(country_confirmed.trend, baseFuncTanh, 'Função de ajuste: Tangente Hiperbólica - Casos Confirmados - Brasil')
+nonLinearRegression(country_recovered.trend, baseFuncTanh, 'Função de ajuste: Tangente Hiperbólica - Recuperados - Brasil')
+nonLinearRegression(country_deaths.trend, baseFuncTanh, 'Função de ajuste: Tangente Hiperbólica - Mortes - Brasil')
