@@ -22,20 +22,13 @@ def preprocessamento():
 
   #Remover todos que possuem admin1 e admin2
   with_adminRegion1 = df_dataset_removed_data['AdminRegion1'].isnull()
-  with_adminRegion2 = df_dataset_removed_data['AdminRegion1'].isnull()
+  # with_adminRegion2 = df_dataset_removed_data['AdminRegion1'].isnull()
 
-  df_with_anyRegion = with_adminRegion1 | with_adminRegion2
+  df_with_anyRegion = with_adminRegion1
 
   df_dataset_removed_data = df_dataset_removed_data.loc[df_with_anyRegion]
 
   df_dataset_removed_data = df_dataset_removed_data.drop(['AdminRegion1', 'AdminRegion2'], axis = 1)
-
-  #Remover dados zerados de mortes e recuperados
-  df_zero_deaths = df_dataset_removed_data['Deaths'] > 0
-  df_dataset_removed_data = df_dataset_removed_data.loc[df_zero_deaths]
-  
-  df_zero_recovered = df_dataset_removed_data['Recovered'] > 0
-  df_dataset_removed_data = df_dataset_removed_data.loc[df_zero_recovered]
 
   #Remover dados zerados da vacinação
   withoutTotal = df_dataset_original_vacinacao['total_vaccinations'].notnull()
@@ -69,15 +62,9 @@ def preprocessamento():
   df_filled_data['month'] = df_filled_data['Updated'].dt.month
   df_filled_data['year'] = df_filled_data['Updated'].dt.year
 
-  #26<->29/03/2021 todos os países
-  # days = df_filled_data['Updated'] == '2021-03-25'
-  # df_days = df_filled_data.loc[days]
-
-
-  # for index, row in df_days:
-  #   print(row)
-    #for i in range(26,29):
-      #df_filled_data.add({'Updated':'2021-03-'+str(i),'Confirmed': row['Confirmed'],'ConfirmedChange': 0, 'Deaths': row['Deaths'], 'DeathsChange': 0, 'Recovered': row['Recovered'],'RecoveredChange': 0, 'Country_Region': row['Country_Region'], 'ISO3': row['ISO3']})
+  df_filled_data['Confirmed'] += 1
+  df_filled_data['Deaths'] += 1
+  df_filled_data['Recovered'] += 1
 
   df_filled_data.sort_values(by=['ISO3', 'Updated'], inplace=True)
 

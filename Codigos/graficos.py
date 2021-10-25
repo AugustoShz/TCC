@@ -10,9 +10,6 @@ df_dataset_processed_data = pd.read_csv('..\DatasetsTratados\processed_data.csv'
 df_dataset_processed_vacinacao = pd.read_csv('..\DatasetsTratados\processed_vacinacao.csv', sep=',', index_col=None)
 df_dataset_filtered_by_vacinacao_date_data = pd.read_csv('..\DatasetsTratados/filtered_by_vaccination_dates_data.csv', sep=',', index_col=None)
 
-start_date = pd.to_datetime(df_dataset_processed_data['Updated'].min()) + pd.offsets.MonthEnd(0) - pd.offsets.MonthBegin(1)
-end_date = pd.to_datetime(df_dataset_processed_data['Updated'].max()) + pd.offsets.MonthEnd(0)
-
 def formatDate(date):
   formated = pd.to_datetime(date, format='%Y-%m-%d')
   return formated
@@ -60,6 +57,9 @@ def crossDataGraphics(countryISO, title, hideConfirmed = False, hideDeaths = Fal
     df_ksvalues_deaths_confirmed = []
     
     month_offset = 1
+
+    start_date = pd.to_datetime(df_initial['Updated'].min()) + pd.offsets.MonthEnd(0) - pd.offsets.MonthBegin(1)
+    end_date = pd.to_datetime(df_initial['Updated'].max()) + pd.offsets.MonthEnd(0)
     
     while(start_date + pd.DateOffset(months=month_offset) <= end_date):
       x = start_date + pd.DateOffset(months=month_offset)
@@ -78,36 +78,36 @@ def crossDataGraphics(countryISO, title, hideConfirmed = False, hideDeaths = Fal
       integralRecovered = np.trapz(yFilteredByDateRecovered, dx=5)
       integralDeaths = np.trapz(yFilteredByDateDeaths, dx=5)
 
-      if(countryISO == 'WWW'): print(yFilteredByDateRecovered, yFilteredByDateConfirmed)
+      if(countryISO == 'ARG'): print(yFilteredByDateRecovered, yFilteredByDateConfirmed, start_date, end_date)
 
-      # ks_stat_confirmed_recovered, ks_p_value_confirmed_recovered = stats.ks_2samp(yFilteredByDateRecovered, yFilteredByDateConfirmed)
+      ks_stat_confirmed_recovered, ks_p_value_confirmed_recovered = stats.ks_2samp(yFilteredByDateRecovered, yFilteredByDateConfirmed)
       df_ksvalues_confirmed_recovered.append({
         'month': x,
-        # 'stat': ks_stat_confirmed_recovered, 
-        # 'p': ks_p_value_confirmed_recovered,
-        # 'maxDiff':  max(yFilteredByDateConfirmed - yFilteredByDateRecovered),
+        'stat': ks_stat_confirmed_recovered, 
+        'p': ks_p_value_confirmed_recovered,
+        'maxDiff':  max(yFilteredByDateConfirmed - yFilteredByDateRecovered),
         'integral': integralConfirmed - integralRecovered,
         'integralPercentage': min(integralRecovered / integralConfirmed, 1),
         'countryAndWorldDiff': (integralConfirmed - integralRecovered) - (integralConfirmed - integralRecovered)
       })
 
-      # ks_stat_deaths_recovered, ks_p_value_deaths_recovered = stats.ks_2samp(yFilteredByDateRecovered, yFilteredByDateDeaths)
+      ks_stat_deaths_recovered, ks_p_value_deaths_recovered = stats.ks_2samp(yFilteredByDateRecovered, yFilteredByDateDeaths)
       df_ksvalues_deaths_recovered.append({
         'month': x, 
-        # 'stat': ks_stat_deaths_recovered, 
-        # 'p': ks_p_value_deaths_recovered,
-        # 'maxDiff':  max(yFilteredByDateRecovered - yFilteredByDateDeaths),
+        'stat': ks_stat_deaths_recovered, 
+        'p': ks_p_value_deaths_recovered,
+        'maxDiff':  max(yFilteredByDateRecovered - yFilteredByDateDeaths),
         'integral': integralRecovered - integralDeaths,
         'integralPercentage':  min(integralDeaths / integralRecovered, 1),
         'countryAndWorldDiff': (integralRecovered - integralDeaths) - (integralRecovered - integralDeaths)
       })
 
-      # ks_stat_deaths_confirmed, ks_p_value_deaths_confirmed = stats.ks_2samp(yFilteredByDateConfirmed, yFilteredByDateDeaths)
+      ks_stat_deaths_confirmed, ks_p_value_deaths_confirmed = stats.ks_2samp(yFilteredByDateConfirmed, yFilteredByDateDeaths)
       df_ksvalues_deaths_confirmed.append({
         'month': x, 
-        # 'stat': ks_stat_deaths_confirmed, 
-        # 'p': ks_p_value_deaths_confirmed,
-        # 'maxDiff':  max(yFilteredByDateConfirmed - yFilteredByDateDeaths),
+        'stat': ks_stat_deaths_confirmed, 
+        'p': ks_p_value_deaths_confirmed,
+        'maxDiff':  max(yFilteredByDateConfirmed - yFilteredByDateDeaths),
         'integral': integralConfirmed - integralDeaths,
         'integralPercentage':  min(integralDeaths / integralConfirmed, 1),
         'countryAndWorldDiff': (integralConfirmed - integralDeaths) - (integralConfirmed - integralDeaths)
@@ -132,7 +132,7 @@ def crossDataGraphics(countryISO, title, hideConfirmed = False, hideDeaths = Fal
     df_ksvalues_deaths_confirmed = pd.DataFrame(df_ksvalues_deaths_confirmed)
 
 
-    # plt.plot(df_ksvalues_confirmed_recovered['month'], df_ksvalues_confirmed_recovered['stat'], color='blue', label='stat')
+    plt.plot(df_ksvalues_confirmed_recovered['month'], df_ksvalues_confirmed_recovered['stat'], color='blue', label='stat')
     # plt.plot(df_ksvalues_deaths_recovered['month'], df_ksvalues_deaths_recovered['stat'], color='blue', label='stat')
     # plt.plot(df_ksvalues_deaths_confirmed['month'], df_ksvalues_deaths_confirmed['stat'], color='blue', label='stat')
 
@@ -144,11 +144,11 @@ def crossDataGraphics(countryISO, title, hideConfirmed = False, hideDeaths = Fal
     plt.show()
   return df_initial, df_initial_after_vaccine, df_filtered
 
-crossDataGraphics('BRA', 'Casos totais - Brasil')
+# crossDataGraphics('BRA', 'Casos totais - Brasil')
 crossDataGraphics('ARG', 'Casos totais - Argentina')
 crossDataGraphics('WWW', 'Casos totais - Mundial')
 
-crossDataGraphics('BRA', 'Grafico de mortes - Brasil', True, False, True)
+# crossDataGraphics('BRA', 'Grafico de mortes - Brasil', True, False, True)
 crossDataGraphics('ARG', 'Grafico de mortes - Argentina', True, False, True)
 crossDataGraphics('WWW', 'Grafico de mortes - Mundial', True, False, True)
 
